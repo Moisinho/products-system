@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# Imagen de DESARROLLO con hot reload (dotnet watch). No usar en producción.
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /src
+
+# curl (healthcheck) + fuentes para QuestPDF
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl libfontconfig1 fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+
+# Restore cacheado (acelera el primer arranque del watch)
+COPY src/ProductsSystem.Api/ProductsSystem.Api.csproj src/ProductsSystem.Api/
+RUN dotnet restore src/ProductsSystem.Api/ProductsSystem.Api.csproj
+
+# El código real se monta por bind-mount desde el host (ver docker-compose.dev.yml)
+COPY . .
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_USE_POLLING_FILE_WATCHER=true \
+    DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
+
+# dotnet watch: recompila y recarga al detectar cambios en el código
+CMD ["dotnet", "watch", "run", "--no-launch-profile", "--non-interactive", \
+     "--project", "src/ProductsSystem.Api/ProductsSystem.Api.csproj"]

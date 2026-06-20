@@ -1,0 +1,86 @@
+name: products-system
+
+# Valores de desarrollo INLINE a propósito: el objetivo es que
+# `git clone && docker compose up` funcione sin pasos extra. En producción estos
+# secretos deben externalizarse/rotarse (ver README y CLAUDE.md).
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: products-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: products
+      POSTGRES_PASSWORD: products_dev_pwd
+      POSTGRES_DB: productsdb
+    ports:
+      - "5432:5432" # publicado solo para el flujo de dev local opcional
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - products-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U products -d productsdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: products-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=productsdb;Username=products;Password=products_dev_pwd"
+      Jwt__Secret: "dev_super_secret_change_in_production_0123456789_abcdef"
+      Jwt__Issuer: "products-api"
+      Jwt__Audience: "products-web"
+      Jwt__ExpiryMinutes: "60"
+      Cors__AllowedOrigins: "http://localhost:3000"
+    ports:
+      - "5080:8080" # API + Swagger en http://localhost:5080
+    networks:
+      - products-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s # cubre migraciones + warmup en el primer arranque
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # BFF proxy: el navegador llama a /api/* (mismo origen). Valor vacío.
+        NEXT_PUBLIC_API_URL: ""
+    container_name: products-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      # Solo servidor: las Route Handlers de Next reenvían al backend por DNS interno.
+      INTERNAL_API_URL: "http://backend:8080"
+    ports:
+      - "3000:3000" # App web en http://localhost:3000
+    networks:
+      - products-net
+
+volumes:
+  db_data:
+
+networks:
+  products-net:
+    driver: bridge

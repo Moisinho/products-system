@@ -1,0 +1,33 @@
+# ---------- .NET / backend ----------
+**/bin/
+**/obj/
+**/out/
+*.user
+.vs/
+
+# ---------- Node / frontend ----------
+**/node_modules/
+**/.next/
+**/out/
+**/.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---------- Env / local overrides ----------
+# NOTE: this project ships dev defaults INLINE in docker-compose.yml on purpose,
+# so `git clone && docker compose up` works with zero extra steps.
+# These ignores only guard against accidental local secret files.
+*.env.local
+.env.*.local
+frontend/.env.local
+backend/src/**/appsettings.*.Local.json
+
+# ---------- OS / editor ----------
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json

@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1
+# Imagen de DESARROLLO con hot reload (next dev + Turbopack). No usar en producción.
+FROM node:24-alpine
+WORKDIR /app
+RUN corepack enable
+
+# Instala dependencias (se cachea en la imagen; el volumen las preserva sobre el bind-mount)
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# El código real se monta por bind-mount desde el host (ver docker-compose.dev.yml)
+COPY . .
+
+EXPOSE 3000
+# -H 0.0.0.0 para que sea alcanzable desde el host vía el mapeo de puertos
+CMD ["pnpm", "exec", "next", "dev", "--turbopack", "-H", "0.0.0.0", "-p", "3000"]
