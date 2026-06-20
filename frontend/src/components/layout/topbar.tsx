@@ -18,8 +18,8 @@ export function Topbar({ user }: { user: SessionUser }) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:px-6">
-      <h1 className="truncate text-sm font-medium text-foreground md:text-base">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border bg-background/80 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:px-6">
+      <h1 className="truncate text-lg font-semibold tracking-tight text-foreground md:text-xl">
         {sectionTitle(pathname)}
       </h1>
       <div className="flex items-center gap-1.5">

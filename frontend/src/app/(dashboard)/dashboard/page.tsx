@@ -38,8 +38,9 @@ export default async function DashboardPage() {
 
   return (
     <PageTransition className="space-y-6">
-      {/* Hero de bienvenida */}
-      <section className="relative overflow-hidden rounded-2xl border border-border">
+      {/* Hero de bienvenida — fondo siempre oscuro, por eso forzamos tokens
+          dark en este subárbol para garantizar contraste en light y dark */}
+      <section className="dark relative overflow-hidden rounded-2xl border border-border">
         <div className="absolute inset-0 bg-gradient-to-br from-sidebar via-sidebar to-background" />
         <div className="absolute inset-0 bg-blueprint opacity-50" />
         <div className="brand-glow absolute inset-0 opacity-90" />
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
             <Button
               asChild
               variant="outline"
-              className="border-border/60 bg-card/40 backdrop-blur"
+              className="border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white/20 hover:text-white"
             >
               <Link href="/products">
                 Ver productos

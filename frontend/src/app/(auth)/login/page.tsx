@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const brandInput = "focus-visible:border-brand focus-visible:ring-brand/30";
 
@@ -109,8 +110,7 @@ function LoginInner() {
               <FormItem>
                 <FormLabel>Contraseña *</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     placeholder="••••••••"
                     autoComplete="current-password"
                     className={`h-11 ${brandInput}`}
